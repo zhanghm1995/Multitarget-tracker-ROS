@@ -79,25 +79,28 @@ void CTracker::UpdateHungrian(
     size_t N = tracks.size();		// треки
     size_t M = regions.size();	// детекты
 
-    assignments_t assignment(N, -1); // назначения
-
+    assignments_t assignment(N, -1); // define a N-dimensions vector with initial value -1
+    std::cout<<"tracks info =========="<<N<<" "<<M<<std::endl;
     if (!tracks.empty())
     {
         // Матрица расстояний от N-ного трека до M-ного детекта.
+    	// 当前跟踪的目标和检测到的目标距离矩阵
         distMatrix_t Cost(N * M);
 
         // -----------------------------------
         // Треки уже есть, составим матрицу расстояний
+        // 填充距离矩阵
         // -----------------------------------
         const track_t maxPossibleCost = grayFrame.cols * grayFrame.rows;
         track_t maxCost = 0;
         switch (m_distType)
         {
         case tracking::DistCenters:
-            for (size_t i = 0; i < tracks.size(); i++)
+            for (size_t i = 0; i < tracks.size(); i++)//对于某一个跟踪目标，计算其与当前所有检测到的目标距离
             {
                 for (size_t j = 0; j < regions.size(); j++)
                 {
+                	//计算track预测点和regions中矩形框中心点之间的距离
                     auto dist = tracks[i]->CheckType(regions[j].m_type) ? tracks[i]->CalcDist((regions[j].m_rect.tl() + regions[j].m_rect.br()) / 2) : maxPossibleCost;
                     Cost[i + j * N] = dist;
                     if (dist > maxCost)
@@ -144,7 +147,7 @@ void CTracker::UpdateHungrian(
         // -----------------------------------
         // Solving assignment problem (tracks and predictions of Kalman filter)
         // -----------------------------------
-        if (m_matchType == tracking::MatchHungrian)
+        if (m_matchType == tracking::MatchHungrian)//choose this one by default
         {
             AssignmentProblemSolver APS;
             APS.Solve(Cost, N, M, assignment, AssignmentProblemSolver::optimal);
@@ -197,17 +200,21 @@ void CTracker::UpdateHungrian(
                 node b = it->target();
                 assignment[b.id()] = a.id() - N;
             }
-        }
+        }//end else
 
         // -----------------------------------
         // clean assignment from pairs with large distance
         // -----------------------------------
         for (size_t i = 0; i < assignment.size(); i++)
         {
+        	std::cout<<std::endl;
+        	std::cout<<assignment[i]<<std::endl;
+        	std::cout<<std::endl;
             if (assignment[i] != -1)
             {
                 if (Cost[i + assignment[i] * N] > m_distThres)
                 {
+                	std::cout<<"[INFO]----------enter m_distThres judgement"<<std::endl;
                     assignment[i] = -1;
                     tracks[i]->m_skippedFrames++;
                 }
@@ -231,7 +238,7 @@ void CTracker::UpdateHungrian(
                 i--;
             }
         }
-    }
+    }//end if (!tracks.empty())
 
     // -----------------------------------
     // Search for unassigned detects and start new tracks for them.
@@ -240,6 +247,7 @@ void CTracker::UpdateHungrian(
     {
         if (find(assignment.begin(), assignment.end(), i) == assignment.end())
         {
+        	std::cout<<"[Cout]enter this one"<<std::endl;
             tracks.push_back(std::make_unique<CTrack>(regions[i],
                                                       m_kalmanType,
                                                       m_dt,
@@ -251,7 +259,7 @@ void CTracker::UpdateHungrian(
     }
 
     // Update Kalman Filters state
-
+    std::cout<<"[Cout---------------]assignment size "<<assignment.size()<<std::endl;
     for (size_t i = 0; i < assignment.size(); i++)
     {
         // If track updated less than one time, than filter state is not correct.

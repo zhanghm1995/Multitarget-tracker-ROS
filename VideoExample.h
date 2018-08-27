@@ -33,7 +33,7 @@ public:
           m_currFrame(0)
     {
         m_inFile = parser.get<std::string>(0);
-        m_outFile = parser.get<std::string>("out");
+        m_outFile = parser.get<std::string>("out");//zhanghm: outfile is null by default
         m_showLogs = parser.get<int>("show_logs") != 0;
         m_startFrame = parser.get<int>("start_frame");
         m_endFrame = parser.get<int>("end_frame");
@@ -66,6 +66,7 @@ public:
 
         std::mutex trackLock;
         std::condition_variable trackCond;
+        //zhanghm: build a image capture and detect thread
         std::thread thCapDet(CaptureAndDetect, this, &stopCapture, &frameLock, &frameCond, &trackLock, &trackCond);
         thCapDet.detach();
 
@@ -88,7 +89,7 @@ public:
             }
         }
 
-        cv::VideoWriter writer;
+        cv::VideoWriter writer;//zhanghm:save output video
 
         cv::namedWindow("Video");
 
@@ -106,7 +107,7 @@ public:
         //std::cout << "Process 0: trackCond.notify_all(); " << std::endl;
 
         int currFrame = 0;
-        for (; !stopCapture && k != 27; )
+        for (; !stopCapture && k != 27; )//zhanghm:no error or no press ESC, just loop run
         {
             //std::cout << "Process: m_currFrame = " << m_currFrame << ", currFrame = " << currFrame << std::endl;
 
@@ -128,7 +129,7 @@ public:
             }
 
             frameLock.lock();
-            currFrame = m_currFrame;
+            currFrame = m_currFrame;//zhanghm: m_currFrame value can be changed in CaptureAndDetect function
             //std::cout << "Process: currFrame = " << currFrame << std::endl;
             frameLock.unlock();
 
@@ -138,7 +139,9 @@ public:
             }
 
             int64 t1 = cv::getTickCount();
-
+            /* ********************
+             *  Tracking
+             * ********************/
             Tracking(m_frameInfo[currFrame].m_frame, m_frameInfo[currFrame].m_gray, m_frameInfo[currFrame].m_regions);
 
             int64 t2 = cv::getTickCount();
@@ -146,7 +149,9 @@ public:
 
             allTime += t2 - t1 + m_frameInfo[currFrame].m_dt;
             int currTime = cvRound(1000 * (t2 - t1 + m_frameInfo[currFrame].m_dt) / freq);
-
+            /* ********************
+             *  Draw final results
+             * ********************/
             DrawData(m_frameInfo[currFrame].m_frame, framesCounter, currTime);
 
             cv::imshow("Video", m_frameInfo[currFrame].m_frame);
@@ -174,7 +179,7 @@ public:
                 std::cout << "Process: riched last " << m_endFrame << " frame" << std::endl;
                 break;
             }
-        }
+        }//end for (; !stopCapture && k != 27; )
         stopCapture = true;
 
         if (thCapDet.joinable())
@@ -184,7 +189,7 @@ public:
 
         std::cout << "work time = " << (allTime / freq) << std::endl;
         cv::waitKey(m_finishDelay);
-    }
+    }//end Process()
 
 protected:
     std::unique_ptr<BaseDetector> m_detector;
@@ -208,7 +213,7 @@ protected:
                                  std::mutex* trackLock,
                                  std::condition_variable* trackCond)
     {
-        cv::VideoCapture capture(thisPtr->m_inFile);
+        cv::VideoCapture capture(thisPtr->m_inFile);//get input video
 
         if (!capture.isOpened())
         {
@@ -216,9 +221,9 @@ protected:
             return;
         }
 
-        capture.set(cv::CAP_PROP_POS_FRAMES, thisPtr->m_startFrame);
+        capture.set(cv::CAP_PROP_POS_FRAMES, thisPtr->m_startFrame);//set start frame postion
 
-        thisPtr->m_fps = std::max(1.f, (float)capture.get(cv::CAP_PROP_FPS));
+        thisPtr->m_fps = std::max(1.f, (float)capture.get(cv::CAP_PROP_FPS));//set frame rate
 
         const int trackingTimeOut = 5000;
 
@@ -226,7 +231,7 @@ protected:
         //std::cout << "CaptureAndDetect: init capture frameCond->notify_all();" << std::endl;
 
         int currFrame = 0;
-        for (; !(*stopCapture);)
+        for (; !(*stopCapture);)//not stop, just loop
         {
             //std::cout << "CaptureAndDetect: m_currFrame = " << thisPtr->m_currFrame << ", currFrame = " << currFrame << std::endl;
 
@@ -246,7 +251,7 @@ protected:
             //std::cout << "CaptureAndDetect: currFrame = " << currFrame << std::endl;
             frameLock->unlock();
 
-            capture >> thisPtr->m_frameInfo[currFrame].m_frame;
+            capture >> thisPtr->m_frameInfo[currFrame].m_frame;//zhanghm: get image
             if (thisPtr->m_frameInfo[currFrame].m_frame.empty())
             {
                 std::cerr << "CaptureAndDetect: frame is empty!" << std::endl;
@@ -256,16 +261,20 @@ protected:
 
             //std::cout << "CaptureAndDetect: capture" << std::endl;
 
-            if (!thisPtr->m_isTrackerInitialized)
+            if (!thisPtr->m_isTrackerInitialized)//zhanghm:use gray image to initialize tracker
             {
+
                 thisPtr->m_isTrackerInitialized = thisPtr->InitTracker(thisPtr->m_frameInfo[currFrame].m_gray);
                 if (!thisPtr->m_isTrackerInitialized)
                 {
-                    std::cerr << "CaptureAndDetect: Tracker initilize error!!!" << std::endl;
+                    //std::cerr << "CaptureAndDetect: Tracker initilize error!!!" << std::endl;
                     break;
                 }
             }
 
+            /* ********************
+             *       Detection
+             * ********************/
             int64 t1 = cv::getTickCount();
             thisPtr->Detection(thisPtr->m_frameInfo[currFrame].m_frame, thisPtr->m_frameInfo[currFrame].m_gray, thisPtr->m_frameInfo[currFrame].m_regions);
             int64 t2 = cv::getTickCount();
@@ -275,11 +284,11 @@ protected:
 
             frameLock->lock();
             thisPtr->m_currFrame = thisPtr->m_currFrame ? 0 : 1;
-            //std::cout << "CaptureAndDetect: thisPtr->m_currFrame = " << thisPtr->m_currFrame << std::endl;
+            std::cout << "CaptureAndDetect: thisPtr->m_currFrame = " << thisPtr->m_currFrame << std::endl;
             frameLock->unlock();
             frameCond->notify_all();
             //std::cout << "CaptureAndDetect 0: frameCond->notify_all();" << std::endl;
-        }
+        }//end for(; !(*stopCapture);)
 
         *stopCapture = true;
         frameCond->notify_all();
@@ -300,7 +309,7 @@ protected:
     /// \param frame
     /// \return
     ///
-    virtual bool InitTracker(cv::UMat frame) = 0;
+    virtual bool InitTracker(cv::UMat frame) = 0; //pure virtual function
 
     ///
     /// \brief Detection
@@ -310,7 +319,7 @@ protected:
     void Detection(cv::Mat frame, cv::UMat grayFrame, regions_t& regions)
     {
         cv::UMat clFrame;
-        if (!GrayProcessing() || !m_tracker->GrayFrameToTrack())
+        if (!GrayProcessing() || !m_tracker->GrayFrameToTrack())//zhanghm: not enter this line by default
         {
             clFrame = frame.getUMat(cv::ACCESS_READ);
         }
@@ -330,6 +339,7 @@ protected:
     void Tracking(cv::Mat frame, cv::UMat grayFrame, const regions_t& regions)
     {
         cv::UMat clFrame;
+        //zhanghm: m_tracker->GrayFrameToTrack() always true
         if (!GrayProcessing() || !m_tracker->GrayFrameToTrack())
         {
             clFrame = frame.getUMat(cv::ACCESS_READ);
@@ -411,7 +421,7 @@ private:
         cv::Mat m_frame;
         cv::UMat m_gray;
         regions_t m_regions;
-        int64 m_dt;
+        int64 m_dt;//zhanghm:detection time?
 
         FrameInfo()
             : m_dt(0)
@@ -448,7 +458,8 @@ protected:
     {
         m_useLocalTracking = false;
 
-        m_minObjWidth = frame.cols / 50;
+        m_minObjWidth = frame.cols / 50;//zhanghm: rows = 360, cols = 640
+        std::cout<<"--------------------"<<frame.rows<<" "<<m_fps<<std::endl;
 
         BaseDetector::config_t config;
         m_detector = std::unique_ptr<BaseDetector>(CreateDetector(tracking::Detectors::Motion_MOG2, config, m_useLocalTracking, frame));
@@ -481,8 +492,10 @@ protected:
             std::cout << "Frame " << framesCounter << ": tracks = " << m_tracker->tracks.size() << ", time = " << currTime << std::endl;
         }
 
+        std::cout<<"DrawData tracks size is "<<m_tracker->tracks.size()<<std::endl;
         for (const auto& track : m_tracker->tracks)
         {
+
             if (track->IsRobust(cvRound(m_fps / 4),          // Minimal trajectory size
                                 0.7f,                        // Minimal ratio raw_trajectory_points / trajectory_lenght
                                 cv::Size2f(0.1f, 8.0f))      // Min and max ratio: width / height
@@ -492,7 +505,7 @@ protected:
             }
         }
 
-        m_detector->CalcMotionMap(frame);
+        //m_detector->CalcMotionMap(frame);
     }
 
 private:

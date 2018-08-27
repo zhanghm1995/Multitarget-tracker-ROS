@@ -28,7 +28,9 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 # ----------------------------------------------------------------------------
 # Предполагаем, что FindOpenCV.cmake расположен по адресу CMAKE_MODULE_PATH.
 # ----------------------------------------------------------------------------
-  FIND_PACKAGE(OpenCV)
+set(OpenCV_DIR /usr/local/opencv3/share/OpenCV)
+#set(CMAKE_MODULE_PATH usr/local/opencv3/share/OpenCV/OpenCVConfig.cmake)
+ FIND_PACKAGE(OpenCV 3 REQUIRED)
 # ----------------------------------------------------------------------------
 # ищем все .cpp и .h файлы и добавляем их в наш проект
 # ----------------------------------------------------------------------------

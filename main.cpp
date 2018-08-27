@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 
     cv::CommandLineParser parser(argc, argv, keys);
 
-    bool useOCL = parser.get<int>("gpu") ? 1 : 0;
+    bool useOCL = parser.get<int>("gpu") ? 1 : 0;//zhanghm: not use OpenCL by default
     cv::ocl::setUseOpenCL(useOCL);
     std::cout << (cv::ocl::useOpenCL() ? "OpenCL is enabled" : "OpenCL not used") << std::endl;
 

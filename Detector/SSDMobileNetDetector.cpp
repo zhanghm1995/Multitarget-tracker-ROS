@@ -1,4 +1,5 @@
 #include "SSDMobileNetDetector.h"
+#include <opencv2/opencv.hpp>
 #include "nms.h"
 
 ///
@@ -8,9 +9,7 @@
 ///
 SSDMobileNetDetector::SSDMobileNetDetector(
 	bool collectPoints,
-    cv::UMat& colorFrame
-	)
-    :
+    cv::UMat& colorFrame):
       BaseDetector(collectPoints, colorFrame),
       m_WHRatio(InWidth / (float)InHeight),
       m_inScaleFactor(0.007843f),
