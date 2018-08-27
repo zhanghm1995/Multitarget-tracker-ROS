@@ -85,35 +85,6 @@ INCLUDE_DIRECTORIES(
              src/Tracker/Kalman.cpp
 )
 
-  set(folder_headers
-             MouseExample.h
-             VideoExample.h
-             nms.h
-             defines.h
-
-             Detector/BaseDetector.h
-             Detector/MotionDetector.h
-             Detector/BackgroundSubtract.h
-             Detector/vibe_src/vibe.hpp
-             Detector/Subsense/BackgroundSubtractorLBSP.h
-             Detector/Subsense/BackgroundSubtractorLOBSTER.h
-             Detector/Subsense/BackgroundSubtractorSuBSENSE.h
-             Detector/Subsense/DistanceUtils.h
-             Detector/Subsense/LBSP.h
-             Detector/Subsense/RandUtils.h
-             Detector/FaceDetector.h
-             Detector/PedestrianDetector.h
-             Detector/pedestrians/c4-pedestrian-detector.h
-             Detector/SSDMobileNetDetector.h
-             Detector/YoloDetector.h
-
-             Tracker/Ctracker.h
-             Tracker/track.h
-             Tracker/HungarianAlg/HungarianAlg.h
-             Tracker/LocalTracker.h
-             Tracker/Kalman.h
-)
-
   set(graph_source
              src/Tracker/graph/tokenise.cpp
 #             Tracker/graph/script.cpp
@@ -127,17 +98,6 @@ INCLUDE_DIRECTORIES(
 #             Tracker/graph/gml2dot.cpp
 #             Tracker/graph/components.cpp
              src/Tracker/graph/fheap.c
-             )
-
-  set(graph_header
-             Tracker/graph/tokenise.h
-             Tracker/graph/mytree.h
-             Tracker/graph/mygraph.h
-             Tracker/graph/mwbmatching.h
-             Tracker/graph/mincut.h
-             Tracker/graph/gport.h
-             Tracker/graph/gdefs.h
-             Tracker/graph/fheap.h
              )
 
   set(gtl_source
@@ -168,43 +128,6 @@ INCLUDE_DIRECTORIES(
              src/Tracker/graph/GTL/src/topsort.cpp
              )
 
-  set(gtl_header
-             Tracker/graph/GTL/include/GTL/algorithm.h
-             Tracker/graph/GTL/include/GTL/bellman_ford.h
-             Tracker/graph/GTL/include/GTL/bfs.h
-             Tracker/graph/GTL/include/GTL/biconnectivity.h
-             Tracker/graph/GTL/include/GTL/bid_dijkstra.h
-             Tracker/graph/GTL/include/GTL/bin_heap.h
-             Tracker/graph/GTL/include/GTL/components.h
-             Tracker/graph/GTL/include/GTL/debug.h
-             Tracker/graph/GTL/include/GTL/dfs.h
-             Tracker/graph/GTL/include/GTL/dijkstra.h
-             Tracker/graph/GTL/include/GTL/edge.h
-             Tracker/graph/GTL/include/GTL/edge_data.h
-             Tracker/graph/GTL/include/GTL/edge_map.h
-             Tracker/graph/GTL/include/GTL/embedding.h
-             Tracker/graph/GTL/include/GTL/fm_partition.h
-             Tracker/graph/GTL/include/GTL/gml_parser.h
-             Tracker/graph/GTL/include/GTL/gml_scanner.h
-             Tracker/graph/GTL/include/GTL/graph.h
-             Tracker/graph/GTL/include/GTL/maxflow_ff.h
-             Tracker/graph/GTL/include/GTL/maxflow_pp.h
-             Tracker/graph/GTL/include/GTL/maxflow_sap.h
-             Tracker/graph/GTL/include/GTL/min_tree.h
-             Tracker/graph/GTL/include/GTL/ne_map.h
-             Tracker/graph/GTL/include/GTL/node.h
-             Tracker/graph/GTL/include/GTL/node_data.h
-             Tracker/graph/GTL/include/GTL/node_map.h
-             Tracker/graph/GTL/include/GTL/planarity.h
-             Tracker/graph/GTL/include/GTL/pq_node.h
-             Tracker/graph/GTL/include/GTL/pq_tree.h
-             Tracker/graph/GTL/include/GTL/ratio_cut_partition.h
-             Tracker/graph/GTL/include/GTL/st_number.h
-             Tracker/graph/GTL/include/GTL/symlist.h
-             Tracker/graph/GTL/include/GTL/topsort.h
-             Tracker/graph/GTL/include/GTL/version.h
-             Tracker/graph/GTL/include/GTL/GTL.h
-             )
 
   SOURCE_GROUP("Source Files" FILES ${folder_source})
   SOURCE_GROUP("Header Files" FILES ${folder_headers})
@@ -243,12 +166,7 @@ endif(USE_OCV_BGFG)
 # ----------------------------------------------------------------------------  
 # Build
 # ----------------------------------------------------------------------------
-#  ADD_EXECUTABLE(MultitargetTracker ${folder_source} ${folder_headers} ${graph_source} ${graph_header} ${gtl_source} ${gtl_header})
-ADD_EXECUTABLE(MultitargetTracker ${folder_source} ${graph_source}  ${gtl_source})
-# ----------------------------------------------------------------------------
-# 
-# ----------------------------------------------------------------------------
-  
+ADD_EXECUTABLE(multitarget_tracker_ros ${folder_source} ${graph_source}  ${gtl_source})  
 
 
 if (CMAKE_COMPILER_IS_GNUCXX)
@@ -261,4 +179,4 @@ set(LIBS
     ${OpenCV_LIBS}
 )
 endif()
-TARGET_LINK_LIBRARIES(MultitargetTracker ${LIBS})
+TARGET_LINK_LIBRARIES(multitarget_tracker_ros ${LIBS})
