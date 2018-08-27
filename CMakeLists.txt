@@ -62,7 +62,7 @@ INCLUDE_DIRECTORIES(
 # set source files
 # ----------------------------------------------------------------------------
   set(folder_source
-             main.cpp
+             src/main.cpp
 
              src/Detector/BaseDetector.cpp
              src/Detector/MotionDetector.cpp
@@ -115,18 +115,18 @@ INCLUDE_DIRECTORIES(
 )
 
   set(graph_source
-             Tracker/graph/tokenise.cpp
+             src/Tracker/graph/tokenise.cpp
 #             Tracker/graph/script.cpp
 #             Tracker/graph/rings.cpp
-             Tracker/graph/mytree.cpp
-             Tracker/graph/mygraph.cpp
-             Tracker/graph/mwbmatching.cpp
-             Tracker/graph/mincut.cpp
-             Tracker/graph/gport.cpp
+             src/Tracker/graph/mytree.cpp
+             src/Tracker/graph/mygraph.cpp
+             src/Tracker/graph/mwbmatching.cpp
+             src/Tracker/graph/mincut.cpp
+             src/Tracker/graph/gport.cpp
 #             Tracker/graph/gml2nestedsql.cpp
 #             Tracker/graph/gml2dot.cpp
 #             Tracker/graph/components.cpp
-             Tracker/graph/fheap.c
+             src/Tracker/graph/fheap.c
              )
 
   set(graph_header
@@ -141,31 +141,31 @@ INCLUDE_DIRECTORIES(
              )
 
   set(gtl_source
-             Tracker/graph/GTL/src/bellman_ford.cpp
-             Tracker/graph/GTL/src/bfs.cpp
-             Tracker/graph/GTL/src/biconnectivity.cpp
-             Tracker/graph/GTL/src/bid_dijkstra.cpp
-             Tracker/graph/GTL/src/components.cpp
-             Tracker/graph/GTL/src/debug.cpp
-             Tracker/graph/GTL/src/dfs.cpp
-             Tracker/graph/GTL/src/dijkstra.cpp
-             Tracker/graph/GTL/src/edge.cpp
-             Tracker/graph/GTL/src/embedding.cpp
-             Tracker/graph/GTL/src/fm_partition.cpp
-             Tracker/graph/GTL/src/gml_parser.cpp
-             Tracker/graph/GTL/src/gml_scanner.cpp
-             Tracker/graph/GTL/src/graph.cpp
-             Tracker/graph/GTL/src/maxflow_ff.cpp
-             Tracker/graph/GTL/src/maxflow_pp.cpp
-             Tracker/graph/GTL/src/maxflow_sap.cpp
-             Tracker/graph/GTL/src/min_tree.cpp
-             Tracker/graph/GTL/src/node.cpp
-             Tracker/graph/GTL/src/planarity.cpp
-             Tracker/graph/GTL/src/pq_node.cpp
-             Tracker/graph/GTL/src/pq_tree.cpp
-             Tracker/graph/GTL/src/ratio_cut_partition.cpp
-             Tracker/graph/GTL/src/st_number.cpp
-             Tracker/graph/GTL/src/topsort.cpp
+             src/Tracker/graph/GTL/src/bellman_ford.cpp
+             src/Tracker/graph/GTL/src/bfs.cpp
+             src/Tracker/graph/GTL/src/biconnectivity.cpp
+             src/Tracker/graph/GTL/src/bid_dijkstra.cpp
+             src/Tracker/graph/GTL/src/components.cpp
+             src/Tracker/graph/GTL/src/debug.cpp
+             src/Tracker/graph/GTL/src/dfs.cpp
+             src/Tracker/graph/GTL/src/dijkstra.cpp
+             src/Tracker/graph/GTL/src/edge.cpp
+             src/Tracker/graph/GTL/src/embedding.cpp
+             src/Tracker/graph/GTL/src/fm_partition.cpp
+             src/Tracker/graph/GTL/src/gml_parser.cpp
+             src/Tracker/graph/GTL/src/gml_scanner.cpp
+             src/Tracker/graph/GTL/src/graph.cpp
+             src/Tracker/graph/GTL/src/maxflow_ff.cpp
+             src/Tracker/graph/GTL/src/maxflow_pp.cpp
+             src/Tracker/graph/GTL/src/maxflow_sap.cpp
+             src/Tracker/graph/GTL/src/min_tree.cpp
+             src/Tracker/graph/GTL/src/node.cpp
+             src/Tracker/graph/GTL/src/planarity.cpp
+             src/Tracker/graph/GTL/src/pq_node.cpp
+             src/Tracker/graph/GTL/src/pq_tree.cpp
+             src/Tracker/graph/GTL/src/ratio_cut_partition.cpp
+             src/Tracker/graph/GTL/src/st_number.cpp
+             src/Tracker/graph/GTL/src/topsort.cpp
              )
 
   set(gtl_header
@@ -243,7 +243,8 @@ endif(USE_OCV_BGFG)
 # ----------------------------------------------------------------------------  
 # Build
 # ----------------------------------------------------------------------------
-  ADD_EXECUTABLE(MultitargetTracker ${folder_source} ${folder_headers} ${graph_source} ${graph_header} ${gtl_source} ${gtl_header})
+#  ADD_EXECUTABLE(MultitargetTracker ${folder_source} ${folder_headers} ${graph_source} ${graph_header} ${gtl_source} ${gtl_header})
+ADD_EXECUTABLE(MultitargetTracker ${folder_source} ${graph_source}  ${gtl_source})
 # ----------------------------------------------------------------------------
 # 
 # ----------------------------------------------------------------------------
