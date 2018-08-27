@@ -1,10 +1,19 @@
-# ----------------------------------------------------------------------------
-# минимальная версия CMake, способная переварить этот файл
-# ----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8)
-project(MultitargetTracker)
+project(multitarget_tracker_ros)
 
 unset(CMAKE_CXX_FLAGS CACHE)
+
+#find catkin packages
+set(PACKAGE_DEPENDENCIES
+  roscpp
+  sensor_msgs
+  std_msgs
+  visualization_msgs
+  cv_bridge  
+  image_transport
+)
+
+find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -21,41 +30,59 @@ elseif (MSVC)
 endif()
 
 
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+#set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/build)
+#set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+#set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # ----------------------------------------------------------------------------
-# Предполагаем, что FindOpenCV.cmake расположен по адресу CMAKE_MODULE_PATH.
+# assume FindOpenCV.cmake file locate in CMAKE_MODULE_PATH 
 # ----------------------------------------------------------------------------
 set(OpenCV_DIR /usr/local/opencv3/share/OpenCV)
 #set(CMAKE_MODULE_PATH usr/local/opencv3/share/OpenCV/OpenCVConfig.cmake)
- FIND_PACKAGE(OpenCV 3 REQUIRED)
+FIND_PACKAGE(OpenCV 3 REQUIRED)
+
+catkin_package(
+  CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
+  DEPENDS EIGEN3 OpenCV
+  INCLUDE_DIRS src
+)
+
+include_directories(src include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+
+INCLUDE_DIRECTORIES(
+		      src/Detector
+              src/Detector/vibe_src
+              src/Detector/Subsense
+              src/Tracker
+              src/Tracker/HungarianAlg
+              src/Tracker/graph
+              src/Tracker/graph/GTL/include)
+
 # ----------------------------------------------------------------------------
-# ищем все .cpp и .h файлы и добавляем их в наш проект
+# set source files
 # ----------------------------------------------------------------------------
   set(folder_source
              main.cpp
 
-             Detector/BaseDetector.cpp
-             Detector/MotionDetector.cpp
-             Detector/BackgroundSubtract.cpp
-             Detector/vibe_src/vibe.cpp
-             Detector/Subsense/BackgroundSubtractorLBSP.cpp
-             Detector/Subsense/BackgroundSubtractorLOBSTER.cpp
-             Detector/Subsense/BackgroundSubtractorSuBSENSE.cpp
-             Detector/Subsense/LBSP.cpp
-             Detector/FaceDetector.cpp
-             Detector/PedestrianDetector.cpp
-             Detector/pedestrians/c4-pedestrian-detector.cpp
-             Detector/SSDMobileNetDetector.cpp
-             Detector/YoloDetector.cpp
+             src/Detector/BaseDetector.cpp
+             src/Detector/MotionDetector.cpp
+             src/Detector/BackgroundSubtract.cpp
+             src/Detector/vibe_src/vibe.cpp
+             src/Detector/Subsense/BackgroundSubtractorLBSP.cpp
+             src/Detector/Subsense/BackgroundSubtractorLOBSTER.cpp
+             src/Detector/Subsense/BackgroundSubtractorSuBSENSE.cpp
+             src/Detector/Subsense/LBSP.cpp
+             src/Detector/FaceDetector.cpp
+             src/Detector/PedestrianDetector.cpp
+             src/Detector/pedestrians/c4-pedestrian-detector.cpp
+             src/Detector/SSDMobileNetDetector.cpp
+             src/Detector/YoloDetector.cpp
 
-             Tracker/Ctracker.cpp
-             Tracker/track.cpp
-             Tracker/HungarianAlg/HungarianAlg.cpp
-             Tracker/LocalTracker.cpp
-             Tracker/Kalman.cpp
+             src/Tracker/Ctracker.cpp
+             src/Tracker/track.cpp
+             src/Tracker/HungarianAlg/HungarianAlg.cpp
+             src/Tracker/LocalTracker.cpp
+             src/Tracker/Kalman.cpp
 )
 
   set(folder_headers
@@ -214,27 +241,13 @@ if(USE_OCV_BGFG)
 endif(USE_OCV_BGFG)
 
 # ----------------------------------------------------------------------------  
-# создаем проект
+# Build
 # ----------------------------------------------------------------------------
   ADD_EXECUTABLE(MultitargetTracker ${folder_source} ${folder_headers} ${graph_source} ${graph_header} ${gtl_source} ${gtl_header})
 # ----------------------------------------------------------------------------
-# добавляем include директории
+# 
 # ----------------------------------------------------------------------------
-  INCLUDE_DIRECTORIES(
-		      ${PROJECT_SOURCE_DIR}/Detector
-                      ${PROJECT_SOURCE_DIR}/Detector/vibe_src
-                      ${PROJECT_SOURCE_DIR}/Detector/Subsense
-                      ${PROJECT_SOURCE_DIR}/Tracker
-                      ${PROJECT_SOURCE_DIR}/Tracker/HungarianAlg
-                      ${PROJECT_SOURCE_DIR}/Tracker/graph
-                      ${PROJECT_SOURCE_DIR}/Tracker/graph/GTL/include)
-
-  INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR})
-  INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
-
-# ----------------------------------------------------------------------------
-# и Lib-ы opencv
-# ----------------------------------------------------------------------------
+  
 
 
 if (CMAKE_COMPILER_IS_GNUCXX)

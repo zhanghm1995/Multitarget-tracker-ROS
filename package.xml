@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package  format="2">
+  <name>multitarget_tracker_ros</name>
+  <version>0.0.0</version>
+
+  <description>
+	This is a ROS implementation of dynamic_object by bit RCIV
+  </description>
+
+  <maintainer email="zhanghm_1995@qq.com">AdrewZ</maintainer>
+
+  <license>GLP</license>
+
+  <author email="zhanghm_1995@qq.com">AdrewZ</author>
+  
+  
+   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>  
+
+
+  <depend>message_runtime</depend>
+  <depend>roscpp</depend>
+  <depend>roslaunch</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>image_transport</depend>
+
+
+  <export>
+  </export>
+</package>
