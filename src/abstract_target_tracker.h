@@ -18,41 +18,11 @@ typedef std::unordered_map<std::string, std::string> params_config;
 ///
 /// \brief The VideoExample class
 ///
-class VideoExample
+class AbstractTargetTracker
 {
 public:
   //construcotrs
-    VideoExample(const cv::CommandLineParser& parser)
-        :
-          m_showLogs(true),
-          m_fps(25),
-          m_useLocalTracking(false),
-          m_isTrackerInitialized(false),
-          m_startFrame(0),
-          m_endFrame(0),
-          m_finishDelay(0),
-          m_currFrame(0)
-    {
-        m_inFile = parser.get<std::string>(0);
-        m_outFile = parser.get<std::string>("out");//zhanghm: outfile is null by default
-        m_showLogs = parser.get<int>("show_logs") != 0;
-        m_startFrame = parser.get<int>("start_frame");
-        m_endFrame = parser.get<int>("end_frame");
-        m_finishDelay = parser.get<int>("end_delay");
-
-        m_colors.push_back(cv::Scalar(255, 0, 0));
-        m_colors.push_back(cv::Scalar(0, 255, 0));
-        m_colors.push_back(cv::Scalar(0, 0, 255));
-        m_colors.push_back(cv::Scalar(255, 255, 0));
-        m_colors.push_back(cv::Scalar(0, 255, 255));
-        m_colors.push_back(cv::Scalar(255, 0, 255));
-        m_colors.push_back(cv::Scalar(255, 127, 255));
-        m_colors.push_back(cv::Scalar(127, 0, 255));
-        m_colors.push_back(cv::Scalar(127, 0, 127));
-    }
-
-
-    VideoExample(const params_config& params_parser):
+  AbstractTargetTracker(const params_config& params_parser):
       m_showLogs(true),
       m_fps(25),
       m_useLocalTracking(false),
@@ -75,7 +45,7 @@ public:
       m_colors.push_back(cv::Scalar(127, 0, 127));
     }
 
-    virtual ~VideoExample()
+    virtual ~AbstractTargetTracker()
     {
 
     }

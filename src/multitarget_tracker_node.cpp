@@ -15,19 +15,17 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
 
-//#include "MouseExample.h"
 #include "VideoExample.h"
 using std::string;
 
 static params_config ros_params;
-
 class PostProcess
 {
 public:
   PostProcess(ros::NodeHandle& nodehandle):nodehandle_(nodehandle),
   processthread_(NULL),
-  processthreadfinished_ (false)
-//  dnn_detector_(ros_params)
+  processthreadfinished_ (false),
+  dnn_detector_(ros_params)
   {
     init();
   }
@@ -54,7 +52,7 @@ public:
 
   void process()
   {
-//    dnn_detector_.Process();
+    dnn_detector_.Process();
   }
 
 private:
@@ -65,7 +63,7 @@ private:
   //ROS subscriber and publisher
   ros::Subscriber sub_image_;
 
-//  SSDMobileNetExample dnn_detector_;
+  SSDMobileNetExample dnn_detector_;
 
   cv::Mat camera_image_raw_;
 };
@@ -75,19 +73,13 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "multitarget_tracker");
   ros::NodeHandle nh;
   PostProcess postprocess(nh);
-//  cv::CommandLineParser parser(argc, argv, keys);
-  //get parameters
 
+  //get parameters
   string show_logs;
   int exampleNum;
   ros::param::get("~example",exampleNum);
   ros::param::get("~show_logs",show_logs);
   ros_params["show_logs"] = show_logs;
-
-//  bool useOCL = parser.get<int>("gpu") ? 1 : 0;//zhanghm: not use OpenCL by default
-//  cv::ocl::setUseOpenCL(useOCL);
-//  std::cout << (cv::ocl::useOpenCL() ? "OpenCL is enabled" : "OpenCL not used") << std::endl;
-
 
   ros::spin();
   return 0;
