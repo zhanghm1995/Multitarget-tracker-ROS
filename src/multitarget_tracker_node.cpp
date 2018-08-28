@@ -2,7 +2,6 @@
 #include <string>
 //ROS
 #include <ros/ros.h>
-#include <sensor_msgs/PointCloud2.h>
 #include <image_transport/image_transport.h> //image handler
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
@@ -16,31 +15,19 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
 
-#include "MouseExample.h"
+//#include "MouseExample.h"
 #include "VideoExample.h"
 using std::string;
 
 static params_config ros_params;
-const char* keys =
-{
-    "{ @1             |../data/atrium.avi  | movie file | }"
-    "{ e  example     |1                   | number of example 0 - MouseTracking, 1 - MotionDetector, 2 - FaceDetector, 3 - PedestrianDetector, 4 - MobileNet SSD detector, 5 - Yolo detector | }"
-    "{ sf start_frame |0                   | Start a video from this position | }"
-    "{ ef end_frame   |0                   | Play a video to this position (if 0 then played to the end of file) | }"
-    "{ ed end_delay   |0                   | Delay in milliseconds after video ending | }"
-    "{ o  out         |                    | Name of result video file | }"
-    "{ sl show_logs   |1                   | Show Trackers logs | }"
-    "{ g gpu          |0                   | Use OpenCL acceleration | }"
-};
-
 
 class PostProcess
 {
 public:
   PostProcess(ros::NodeHandle& nodehandle):nodehandle_(nodehandle),
   processthread_(NULL),
-  processthreadfinished_ (false),
-  dnn_detector_(ros_params)
+  processthreadfinished_ (false)
+//  dnn_detector_(ros_params)
   {
     init();
   }
@@ -67,7 +54,7 @@ public:
 
   void process()
   {
-    dnn_detector_.Process();
+//    dnn_detector_.Process();
   }
 
 private:
@@ -78,7 +65,7 @@ private:
   //ROS subscriber and publisher
   ros::Subscriber sub_image_;
 
-  SSDMobileNetExample dnn_detector_;
+//  SSDMobileNetExample dnn_detector_;
 
   cv::Mat camera_image_raw_;
 };
@@ -88,7 +75,7 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "multitarget_tracker");
   ros::NodeHandle nh;
   PostProcess postprocess(nh);
-  cv::CommandLineParser parser(argc, argv, keys);
+//  cv::CommandLineParser parser(argc, argv, keys);
   //get parameters
 
   string show_logs;
