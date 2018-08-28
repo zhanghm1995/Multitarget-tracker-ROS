@@ -38,14 +38,17 @@ endif()
 # assume FindOpenCV.cmake file locate in CMAKE_MODULE_PATH 
 # ----------------------------------------------------------------------------
 set(OpenCV_DIR /usr/local/opencv3/share/OpenCV)
-#set(CMAKE_MODULE_PATH usr/local/opencv3/share/OpenCV/OpenCVConfig.cmake)
+#set(CMAKE_MODULE_PATH /usr/local/opencv3/share/OpenCV/OpenCVConfig.cmake)
 FIND_PACKAGE(OpenCV 3 REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
-  DEPENDS EIGEN3 OpenCV
+  DEPENDS OpenCV
   INCLUDE_DIRS src
 )
+
+message(STATUS "=============${OpenCV_INCLUDE_DIRS}")
+message(STATUS "--------------${OpenCV_LIBS}")
 
 include_directories(src include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
 
@@ -166,17 +169,5 @@ endif(USE_OCV_BGFG)
 # ----------------------------------------------------------------------------  
 # Build
 # ----------------------------------------------------------------------------
-ADD_EXECUTABLE(multitarget_tracker_ros ${folder_source} ${graph_source}  ${gtl_source})  
-
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-set(LIBS
-    ${OpenCV_LIBS}
-#    iconv
-)
-else(CMAKE_COMPILER_IS_GNUCXX)
-set(LIBS
-    ${OpenCV_LIBS}
-)
-endif()
-TARGET_LINK_LIBRARIES(multitarget_tracker_ros ${LIBS})
+ADD_EXECUTABLE(multitarget_tracker_ros ${folder_source} ${graph_source}  ${gtl_source})
+TARGET_LINK_LIBRARIES(multitarget_tracker_ros ${OpenCV_LIBS})
