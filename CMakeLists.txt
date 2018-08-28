@@ -14,6 +14,7 @@ set(PACKAGE_DEPENDENCIES
 )
 
 find_package(catkin REQUIRED COMPONENTS ${PACKAGE_DEPENDENCIES})
+find_package(Boost REQUIRED COMPONENTS system iostreams)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -22,7 +23,7 @@ if (OPENMP_FOUND)
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic-errors --std=gnu++14" CACHE STRING COMPILE_FLAGS FORCE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra --std=gnu++14" CACHE STRING COMPILE_FLAGS FORCE)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g -march=native -mtune=native --fast-math -ffast-math -funroll-loops -Wall -DNDEBUG -DBOOST_DISABLE_ASSERTS" CACHE STRING COMPILE_FLAGS FORCE)
     set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -march=native -mtune=native -Wall -DDEBUG" CACHE STRING COMPILE_FLAGS FORCE)
 elseif (MSVC)
@@ -38,16 +39,19 @@ endif()
 # assume FindOpenCV.cmake file locate in CMAKE_MODULE_PATH 
 # ----------------------------------------------------------------------------
 set(OpenCV_DIR /usr/local/opencv3/share/OpenCV)
-#set(CMAKE_MODULE_PATH usr/local/opencv3/share/OpenCV/OpenCVConfig.cmake)
+#set(CMAKE_MODULE_PATH /usr/local/opencv3/share/OpenCV/OpenCVConfig.cmake)
 FIND_PACKAGE(OpenCV 3 REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS ${PACKAGE_DEPENDENCIES}
-  DEPENDS EIGEN3 OpenCV
+  DEPENDS OpenCV
   INCLUDE_DIRS src
 )
 
-include_directories(src include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS})
+message(STATUS "=============${OpenCV_INCLUDE_DIRS}")
+message(STATUS "--------------${OpenCV_LIBS}")
+
+include_directories(src include ${catkin_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
 
 INCLUDE_DIRECTORIES(
 		      src/Detector
@@ -62,8 +66,6 @@ INCLUDE_DIRECTORIES(
 # set source files
 # ----------------------------------------------------------------------------
   set(folder_source
-             src/main.cpp
-
              src/Detector/BaseDetector.cpp
              src/Detector/MotionDetector.cpp
              src/Detector/BackgroundSubtract.cpp
@@ -166,17 +168,8 @@ endif(USE_OCV_BGFG)
 # ----------------------------------------------------------------------------  
 # Build
 # ----------------------------------------------------------------------------
-ADD_EXECUTABLE(multitarget_tracker_ros ${folder_source} ${graph_source}  ${gtl_source})  
+ADD_EXECUTABLE(multitarget_tracker_ros src/main.cpp ${folder_source} ${graph_source}  ${gtl_source})
+TARGET_LINK_LIBRARIES(multitarget_tracker_ros ${OpenCV_LIBS})
 
-
-if (CMAKE_COMPILER_IS_GNUCXX)
-set(LIBS
-    ${OpenCV_LIBS}
-#    iconv
-)
-else(CMAKE_COMPILER_IS_GNUCXX)
-set(LIBS
-    ${OpenCV_LIBS}
-)
-endif()
-TARGET_LINK_LIBRARIES(multitarget_tracker_ros ${LIBS})
+ADD_EXECUTABLE(multitarget_tracker_node src/multitarget_tracker_node.cpp ${folder_source} ${graph_source}  ${gtl_source})
+TARGET_LINK_LIBRARIES(multitarget_tracker_node ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenCV_LIBS})

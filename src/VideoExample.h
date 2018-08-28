@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <thread>
 #include <mutex>
 #include <chrono>
@@ -13,14 +14,14 @@
 
 #include "nms.h"
 
-// ----------------------------------------------------------------------
-
+typedef std::unordered_map<std::string, std::string> params_config;
 ///
 /// \brief The VideoExample class
 ///
 class VideoExample
 {
 public:
+  //construcotrs
     VideoExample(const cv::CommandLineParser& parser)
         :
           m_showLogs(true),
@@ -49,6 +50,31 @@ public:
         m_colors.push_back(cv::Scalar(127, 0, 255));
         m_colors.push_back(cv::Scalar(127, 0, 127));
     }
+
+
+    VideoExample(const params_config& params_parser):
+      m_showLogs(true),
+      m_fps(25),
+      m_useLocalTracking(false),
+      m_isTrackerInitialized(false),
+      m_startFrame(0),
+      m_endFrame(0),
+      m_finishDelay(0),
+      m_currFrame(0)
+    {
+      m_showLogs = std::stoi(params_parser.find("show_logs")->second);
+
+      m_colors.push_back(cv::Scalar(255, 0, 0));
+      m_colors.push_back(cv::Scalar(0, 255, 0));
+      m_colors.push_back(cv::Scalar(0, 0, 255));
+      m_colors.push_back(cv::Scalar(255, 255, 0));
+      m_colors.push_back(cv::Scalar(0, 255, 255));
+      m_colors.push_back(cv::Scalar(255, 0, 255));
+      m_colors.push_back(cv::Scalar(255, 127, 255));
+      m_colors.push_back(cv::Scalar(127, 0, 255));
+      m_colors.push_back(cv::Scalar(127, 0, 127));
+    }
+
     virtual ~VideoExample()
     {
 
@@ -668,11 +694,18 @@ protected:
 class SSDMobileNetExample : public VideoExample
 {
 public:
-    SSDMobileNetExample(const cv::CommandLineParser& parser)
-        :
-          VideoExample(parser)
+    SSDMobileNetExample(const cv::CommandLineParser& parser):
+      VideoExample(parser)
     {
     }
+
+    SSDMobileNetExample(const params_config& params_parser):
+      VideoExample(params_parser)
+    {
+
+    }
+
+
 
 protected:
     ///
