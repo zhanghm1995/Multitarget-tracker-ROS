@@ -1,0 +1,10 @@
+#use which examples
+example: 4
+#config parameters
+show_logs: 1
+#output conditions
+velocity_limit: 1.0
+lateral_distance_limit: 5.0
+longitudinal_distance_limit: 1.0
+
+

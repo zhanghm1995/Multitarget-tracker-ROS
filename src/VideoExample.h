@@ -694,11 +694,18 @@ protected:
 class SSDMobileNetExample : public VideoExample
 {
 public:
-    SSDMobileNetExample(const cv::CommandLineParser& parser)
-        :
-          VideoExample(parser)
+    SSDMobileNetExample(const cv::CommandLineParser& parser):
+      VideoExample(parser)
     {
     }
+
+    SSDMobileNetExample(const params_config& params_parser):
+      VideoExample(params_parser)
+    {
+
+    }
+
+
 
 protected:
     ///

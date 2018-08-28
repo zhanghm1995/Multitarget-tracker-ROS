@@ -1,3 +1,5 @@
+//C++
+#include <string>
 //ROS
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -16,6 +18,9 @@
 
 #include "MouseExample.h"
 #include "VideoExample.h"
+using std::string;
+
+static params_config ros_params;
 const char* keys =
 {
     "{ @1             |../data/atrium.avi  | movie file | }"
@@ -34,10 +39,11 @@ class PostProcess
 public:
   PostProcess(ros::NodeHandle& nodehandle):nodehandle_(nodehandle),
   processthread_(NULL),
-  processthreadfinished_ (false)
-{
+  processthreadfinished_ (false),
+  dnn_detector_(ros_params)
+  {
     init();
-}
+  }
   ~PostProcess()
   {
     processthreadfinished_ = true;
@@ -61,7 +67,7 @@ public:
 
   void process()
   {
-
+    dnn_detector_.Process();
   }
 
 private:
@@ -72,6 +78,8 @@ private:
   //ROS subscriber and publisher
   ros::Subscriber sub_image_;
 
+  SSDMobileNetExample dnn_detector_;
+
   cv::Mat camera_image_raw_;
 };
 
@@ -80,62 +88,20 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "multitarget_tracker");
   ros::NodeHandle nh;
   PostProcess postprocess(nh);
-  ros::spin();
-
   cv::CommandLineParser parser(argc, argv, keys);
+  //get parameters
 
-  bool useOCL = parser.get<int>("gpu") ? 1 : 0;//zhanghm: not use OpenCL by default
-  cv::ocl::setUseOpenCL(useOCL);
-  std::cout << (cv::ocl::useOpenCL() ? "OpenCL is enabled" : "OpenCL not used") << std::endl;
+  string show_logs;
+  int exampleNum;
+  ros::param::get("~example",exampleNum);
+  ros::param::get("~show_logs",show_logs);
+  ros_params["show_logs"] = show_logs;
 
-  int exampleNum = parser.get<int>("example");
+//  bool useOCL = parser.get<int>("gpu") ? 1 : 0;//zhanghm: not use OpenCL by default
+//  cv::ocl::setUseOpenCL(useOCL);
+//  std::cout << (cv::ocl::useOpenCL() ? "OpenCL is enabled" : "OpenCL not used") << std::endl;
 
-  switch (exampleNum)
-  {
-  case 0:
-    MouseTracking(parser);
-    break;
 
-  case 1:
-  {
-    MotionDetectorExample mdetector(parser);
-    mdetector.Process();
-    break;
-  }
-
-  case 2:
-  {
-    FaceDetectorExample face_detector(parser);
-    face_detector.Process();
-    break;
-  }
-
-  case 3:
-  {
-    PedestrianDetectorExample ped_detector(parser);
-    ped_detector.Process();
-    break;
-  }
-
-  case 4:
-  {
-    SSDMobileNetExample dnn_detector(parser);
-    dnn_detector.Process();
-    break;
-  }
-
-  case 5:
-  {
-    YoloExample yolo_detector(parser);
-    yolo_detector.Process();
-    break;
-  }
-
-  default:
-    std::cerr << "Wrong example number!" << std::endl;
-    break;
-  }
-
-  cv::destroyAllWindows();
+  ros::spin();
   return 0;
 }
