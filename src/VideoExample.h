@@ -391,8 +391,7 @@ protected:
     void DrawTrack(cv::Mat frame,
                    int resizeCoeff,
                    const CTrack& track,
-                   bool drawTrajectory = true
-                   )
+                   bool drawTrajectory = true)
     {
         auto ResizeRect = [&](const cv::Rect& r) -> cv::Rect
         {

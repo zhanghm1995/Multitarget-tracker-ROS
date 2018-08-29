@@ -16,8 +16,10 @@
 #include <opencv2/core/ocl.hpp>
 
 #include "VideoExample.h"
+#include "abstract_target_tracker.h"
 using std::string;
 
+//全局变量定义
 static params_config ros_params;
 class PostProcess
 {
