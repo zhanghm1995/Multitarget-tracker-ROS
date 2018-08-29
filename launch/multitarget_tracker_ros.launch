@@ -1,24 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 <!--在线离线控制执行,同时启动点云预处理节点和动态目标跟踪节点-->
-  <arg name="logdir" default="--log_dir=/home/zhanghm/catkin_ws/log" />
-  <arg name="run_dynamic_map_tracker"		default="false" />
-  <arg name="use_sensor_fusion_output"      default="false"/>
-   
-  <rosparam command="load" file="$(find dynamic_object)/config/dynamic_object_params.yaml" />
-  <node pkg="dynamic_object" type="dynamic_object" name="dynamic_object" args="--logtostderr=0  --colorlogtostderr=1 --stderrthreshold=0   $(arg logdir)" output="screen">
-  	<param name="run_dynamic_map_tracker"		value="$(arg run_dynamic_map_tracker)"/>
-  	<param name="use_sensor_fusion_output"      value="$(arg use_sensor_fusion_output)"/>
+  <rosparam command="load" file="$(find multitarget_tracker_ros)/config/multitarget_tracker_params.yaml" />
+  <node pkg="multitarget_tracker_ros" type="multitarget_tracker_node" name="multitarget_tracker_node"  output="screen">
+  	<remap from="/frontal_camera/image" to="/video_publisher/output_image"/>  
   </node>
   
-<group if="$(arg run_dynamic_map_tracker)">
-  <node pkg="dynamic_object_map" type="dynamic_map" name="dynamic_map" args="--logtostderr=0  --colorlogtostderr=1 --stderrthreshold=0   $(arg logdir)">
-  </node>
-</group>
-<!--  
-  <group if="$(arg rviz)">
-    <node launch-prefix="nice" pkg="rviz" type="rviz" name="rviz" args="-d $(find dynamicobject)/rviz_cfg/covgrid_mapping.rviz" />
-  </group>
--->
-
 </launch>

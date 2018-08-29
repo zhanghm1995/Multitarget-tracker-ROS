@@ -1,6 +1,4 @@
 #pragma once
-
-
 #include <iostream>
 #include <vector>
 #include <map>
@@ -31,8 +29,12 @@ public:
     m_finishDelay(0),
     m_currFrame(1)
 {
-    m_showLogs = std::stoi(params_parser.find("show_logs")->second);
-
+    std::cout<<"enter in AbstractTargetTracker"<<std::endl;
+    auto showLogs = params_parser.find("show_logs");
+    if(showLogs!=params_parser.end()) {
+      std::cout<<"has show logs!"<<std::endl;
+      m_showLogs = std::stoi(showLogs->second);
+    }
     m_colors.push_back(cv::Scalar(255, 0, 0));
     m_colors.push_back(cv::Scalar(0, 255, 0));
     m_colors.push_back(cv::Scalar(0, 0, 255));
@@ -49,7 +51,7 @@ public:
 
   }
 
-  void InitImageInput(const cv::Mat& image_in)
+  void SetImageInput(const cv::Mat& image_in)
   {
     this->image_raw_ = image_in.clone();
   }
