@@ -2,6 +2,11 @@
 <launch>
 <!--在线离线控制执行,同时启动点云预处理节点和动态目标跟踪节点-->
   <rosparam command="load" file="$(find multitarget_tracker_ros)/config/multitarget_tracker_params.yaml" />
+  <param name="modelConfiguration" type="string" value="$(find multitarget_tracker_ros)/data/MobileNetSSD_deploy.prototxt" />
+  <param name="modelBinary" type="string" value="$(find multitarget_tracker_ros)/data/MobileNetSSD_deploy.caffemodel" />
+  <param name="confidenceThreshold" type="string" value="0.5" />
+  <param name="maxCropRatio" type="string" value="3.0" />
+    
   <node pkg="multitarget_tracker_ros" type="multitarget_tracker_node" name="multitarget_tracker_node"  output="screen">
   	<remap from="/frontal_camera/image" to="/video_publisher/output_image"/>  
   </node>

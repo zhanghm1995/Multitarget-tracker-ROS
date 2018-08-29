@@ -27,7 +27,8 @@ public:
     m_useLocalTracking(false),
     m_isTrackerInitialized(false),
     m_finishDelay(0),
-    m_currFrame(1)
+    m_currFrame(1),
+    params_config_(params_parser)
 {
     std::cout<<"enter in AbstractTargetTracker"<<std::endl;
     auto showLogs = params_parser.find("show_logs");
@@ -451,6 +452,7 @@ protected:
 
   bool m_showLogs;
   bool m_useLocalTracking;
+  params_config params_config_;
 
 private:
   bool m_isTrackerInitialized;
@@ -498,10 +500,10 @@ protected:
   {
     int m_fps = 15;
     BaseDetector::config_t config;
-    config["modelConfiguration"] = "../data/MobileNetSSD_deploy.prototxt";
-    config["modelBinary"] = "../data/MobileNetSSD_deploy.caffemodel";
-    config["confidenceThreshold"] = "0.5";
-    config["maxCropRatio"] = "3.0";
+    config["modelConfiguration"] = params_config_["modelConfiguration"];
+    config["modelBinary"] = params_config_["modelBinary"];
+    config["confidenceThreshold"] = params_config_["confidenceThreshold"];
+    config["maxCropRatio"] = params_config_["maxCropRatio"];
     m_detector = std::unique_ptr<BaseDetector>(CreateDetector(tracking::Detectors::SSD_MobileNet, config, m_useLocalTracking, frame));
     if (!m_detector.get())
     {

@@ -82,11 +82,19 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "multitarget_tracker_node");
   ros::NodeHandle nh;
   //get parameters
-  string show_logs = "1";
+  string show_logs = "1", modelConfiguration, modelBinary, confidenceThreshold, maxCropRatio;
   int exampleNum;
   ros::param::get("example",exampleNum);
   ros::param::get("show_logs",show_logs);
+  ros::param::get("modelConfiguration",modelConfiguration);
+  ros::param::get("modelBinary",modelBinary);
+  ros::param::get("confidenceThreshold",confidenceThreshold);
+  ros::param::get("maxCropRatio",maxCropRatio);
   ros_params["show_logs"] = show_logs;
+  ros_params["modelConfiguration"] = modelConfiguration;
+  ros_params["modelBinary"] = modelBinary;
+  ros_params["confidenceThreshold"] = confidenceThreshold;
+  ros_params["maxCropRatio"] = maxCropRatio;
 
   PostProcess postprocess(nh);
 
