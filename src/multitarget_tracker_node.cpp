@@ -1,5 +1,6 @@
 //C++
 #include <string>
+#include <iostream>
 //ROS
 #include <ros/ros.h>
 #include <image_transport/image_transport.h> //image handler
@@ -15,31 +16,31 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/ocl.hpp>
 
-//#include "MouseExample.h"
 #include "VideoExample.h"
-using std::string;
+#include "abstract_target_tracker.h"
+using std::string; using std::cout; using std::endl;
 
+//全局变量定义
 static params_config ros_params;
-
 class PostProcess
 {
 public:
   PostProcess(ros::NodeHandle& nodehandle):nodehandle_(nodehandle),
   processthread_(NULL),
-  processthreadfinished_ (false)
-//  dnn_detector_(ros_params)
+  processthreadfinished_ (false),
+  dnn_tracker_(ros_params)
   {
     init();
   }
   ~PostProcess()
   {
     processthreadfinished_ = true;
-    cv::destroyAllWindows();
     processthread_->join();
   }
 
   void init()
   {
+    ROS_INFO("Enter in init function...");
     sub_image_ = nodehandle_.subscribe<sensor_msgs::Image>("/frontal_camera/image",1, &PostProcess::image_callback, this);
     //begin main thread process
     processthread_ = new boost::thread(boost::bind(&PostProcess::process,this));
@@ -54,7 +55,13 @@ public:
 
   void process()
   {
-//    dnn_detector_.Process();
+    while(!processthreadfinished_ && ros::ok()) {
+      if(this->camera_image_raw_.empty()) {
+        ROS_WARN_THROTTLE(5, "no camera image!");
+      }
+      dnn_tracker_.SetImageInput(this->camera_image_raw_);
+      dnn_tracker_.Process2();
+    }
   }
 
 private:
@@ -65,29 +72,31 @@ private:
   //ROS subscriber and publisher
   ros::Subscriber sub_image_;
 
-//  SSDMobileNetExample dnn_detector_;
+  SSDMobileNetTracker dnn_tracker_;
 
   cv::Mat camera_image_raw_;
 };
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "multitarget_tracker");
+  ros::init(argc, argv, "multitarget_tracker_node");
   ros::NodeHandle nh;
-  PostProcess postprocess(nh);
-//  cv::CommandLineParser parser(argc, argv, keys);
   //get parameters
-
-  string show_logs;
+  string show_logs = "1", modelConfiguration, modelBinary, confidenceThreshold, maxCropRatio;
   int exampleNum;
-  ros::param::get("~example",exampleNum);
-  ros::param::get("~show_logs",show_logs);
+  ros::param::get("example",exampleNum);
+  ros::param::get("show_logs",show_logs);
+  ros::param::get("modelConfiguration",modelConfiguration);
+  ros::param::get("modelBinary",modelBinary);
+  ros::param::get("confidenceThreshold",confidenceThreshold);
+  ros::param::get("maxCropRatio",maxCropRatio);
   ros_params["show_logs"] = show_logs;
+  ros_params["modelConfiguration"] = modelConfiguration;
+  ros_params["modelBinary"] = modelBinary;
+  ros_params["confidenceThreshold"] = confidenceThreshold;
+  ros_params["maxCropRatio"] = maxCropRatio;
 
-//  bool useOCL = parser.get<int>("gpu") ? 1 : 0;//zhanghm: not use OpenCL by default
-//  cv::ocl::setUseOpenCL(useOCL);
-//  std::cout << (cv::ocl::useOpenCL() ? "OpenCL is enabled" : "OpenCL not used") << std::endl;
-
+  PostProcess postprocess(nh);
 
   ros::spin();
   return 0;

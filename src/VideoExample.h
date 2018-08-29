@@ -391,8 +391,7 @@ protected:
     void DrawTrack(cv::Mat frame,
                    int resizeCoeff,
                    const CTrack& track,
-                   bool drawTrajectory = true
-                   )
+                   bool drawTrajectory = true)
     {
         auto ResizeRect = [&](const cv::Rect& r) -> cv::Rect
         {
@@ -792,9 +791,8 @@ protected:
 class YoloExample : public VideoExample
 {
 public:
-    YoloExample(const cv::CommandLineParser& parser)
-        :
-          VideoExample(parser)
+    YoloExample(const cv::CommandLineParser& parser):
+      VideoExample(parser)
     {
     }
 
