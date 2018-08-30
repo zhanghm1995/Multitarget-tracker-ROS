@@ -1,6 +1,7 @@
 //C++
 #include <string>
 #include <iostream>
+#include <memory>
 //ROS
 #include <ros/ros.h>
 #include <image_transport/image_transport.h> //image handler
@@ -25,11 +26,12 @@ static params_config ros_params;
 class PostProcess
 {
 public:
-  PostProcess(ros::NodeHandle& nodehandle):nodehandle_(nodehandle),
+  PostProcess(ros::NodeHandle& nodehandle, AbstractTargetTracker* abstract_tracker):nodehandle_(nodehandle),
   processthread_(NULL),
   processthreadfinished_ (false),
   dnn_tracker_(ros_params)
   {
+    target_tracker_.reset(abstract_tracker);
     init();
   }
   ~PostProcess()
@@ -59,8 +61,10 @@ public:
       if(this->camera_image_raw_.empty()) {
         ROS_WARN_THROTTLE(10, "no camera image!");
       }
-      dnn_tracker_.SetImageInput(this->camera_image_raw_);
-      dnn_tracker_.Process2();
+//      dnn_tracker_.SetImageInput(this->camera_image_raw_);
+//      dnn_tracker_.Process2();
+      target_tracker_->SetImageInput(this->camera_image_raw_);
+      target_tracker_->Process2();
     }
   }
 
@@ -73,6 +77,7 @@ private:
   ros::Subscriber sub_image_;
 
   SSDMobileNetTracker dnn_tracker_;
+  std::unique_ptr<AbstractTargetTracker> target_tracker_ = nullptr;
 
   cv::Mat camera_image_raw_;
 };
@@ -96,7 +101,8 @@ int main(int argc, char** argv)
   ros_params["confidenceThreshold"] = confidenceThreshold;
   ros_params["maxCropRatio"] = maxCropRatio;
 
-  PostProcess postprocess(nh);
+  AbstractTargetTracker* abstract_tracker = new SSDMobileNetTracker(ros_params);
+  PostProcess postprocess(nh, abstract_tracker);
 
   ros::spin();
   return 0;
