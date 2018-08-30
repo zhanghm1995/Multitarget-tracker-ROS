@@ -30,10 +30,9 @@ public:
     m_currFrame(1),
     params_config_(params_parser)
 {
-    std::cout<<"enter in AbstractTargetTracker"<<std::endl;
     auto showLogs = params_parser.find("show_logs");
     if(showLogs!=params_parser.end()) {
-      std::cout<<"has show logs!"<<std::endl;
+      std::cout<<"[INFO] has show logs!"<<std::endl;
       m_showLogs = std::stoi(showLogs->second);
     }
     m_colors.push_back(cv::Scalar(255, 0, 0));
