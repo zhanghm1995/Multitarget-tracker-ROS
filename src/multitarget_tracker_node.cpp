@@ -57,7 +57,7 @@ public:
   {
     while(!processthreadfinished_ && ros::ok()) {
       if(this->camera_image_raw_.empty()) {
-        ROS_WARN_THROTTLE(5, "no camera image!");
+        ROS_WARN_THROTTLE(10, "no camera image!");
       }
       dnn_tracker_.SetImageInput(this->camera_image_raw_);
       dnn_tracker_.Process2();

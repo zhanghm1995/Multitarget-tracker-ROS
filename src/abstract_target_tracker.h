@@ -236,6 +236,8 @@ public:
     allTime += t2_track - t1_track + m_frameInfo[currFrame].m_dt;
     int currTime = cvRound(1000 * (t2_track - t1_track + m_frameInfo[currFrame].m_dt) / freq);
     DrawData(m_frameInfo[currFrame].m_frame, framesCounter, currTime);
+
+    cv::namedWindow("Video", CV_WINDOW_NORMAL);
     cv::imshow("Video", m_frameInfo[currFrame].m_frame);
     cv::waitKey(10);
     ++framesCounter;
