@@ -42,7 +42,6 @@ public:
 
   void init()
   {
-    ROS_INFO("Enter in init function...");
     sub_image_ = nodehandle_.subscribe<sensor_msgs::Image>("/frontal_camera/image",1, &PostProcess::image_callback, this);
     //begin main thread process
     processthread_ = new boost::thread(boost::bind(&PostProcess::process,this));
@@ -59,7 +58,9 @@ public:
   {
     while(!processthreadfinished_ && ros::ok()) {
       if(this->camera_image_raw_.empty()) {
-        ROS_WARN_THROTTLE(10, "no camera image!");
+        ROS_WARN("no camera image!");
+        ros::Duration(1).sleep();
+        continue;
       }
 //      dnn_tracker_.SetImageInput(this->camera_image_raw_);
 //      dnn_tracker_.Process2();
@@ -93,21 +94,21 @@ int main(int argc, char** argv)
 
   AbstractTargetTracker* abstract_tracker = NULL;
   switch(exampleNum) {
-  case 4 :{
-    ROS_INFO("exampleNum is 4, using SSDMobileNetTracker!");
-    ros::param::get("show_logs",show_logs);
-    ros::param::get("modelConfiguration",modelConfiguration);
-    ros::param::get("modelBinary",modelBinary);
-    ros::param::get("confidenceThreshold",confidenceThreshold);
-    ros::param::get("maxCropRatio",maxCropRatio);
-    ros_params["show_logs"] = show_logs;
-    ros_params["modelConfiguration"] = modelConfiguration;
-    ros_params["modelBinary"] = modelBinary;
-    ros_params["confidenceThreshold"] = confidenceThreshold;
-    ros_params["maxCropRatio"] = maxCropRatio;
+    case 4: {
+      ROS_INFO("exampleNum is 4, using SSDMobileNetTracker!");
+      ros::param::get("show_logs",show_logs);
+      ros::param::get("modelConfiguration",modelConfiguration);
+      ros::param::get("modelBinary",modelBinary);
+      ros::param::get("confidenceThreshold",confidenceThreshold);
+      ros::param::get("maxCropRatio",maxCropRatio);
+      ros_params["show_logs"] = show_logs;
+      ros_params["modelConfiguration"] = modelConfiguration;
+      ros_params["modelBinary"] = modelBinary;
+      ros_params["confidenceThreshold"] = confidenceThreshold;
+      ros_params["maxCropRatio"] = maxCropRatio;
 
-    abstract_tracker = new SSDMobileNetTracker(ros_params);
-  }
+      abstract_tracker = new SSDMobileNetTracker(ros_params);
+    }
   }
 
   PostProcess postprocess(nh, abstract_tracker);
